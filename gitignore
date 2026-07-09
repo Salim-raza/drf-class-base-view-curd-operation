@@ -1,7 +1,0 @@
-# Virtual Environment
-venv/
-.env/
-
-
-# Database
-db.sqlite3
