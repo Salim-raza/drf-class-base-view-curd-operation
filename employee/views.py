@@ -3,6 +3,7 @@ from rest_framework.decorators import APIView
 from .serializers import EmployeeSerializers
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
 from .models import Employee
 
 # Create your views here.
@@ -33,3 +34,17 @@ class EmployeeModifyAPIView(APIView):
         employee = get_object_or_404(Employee, pk=pk)
         employee.delete()
         return Response({"message": "delete employee data"}, status=status.HTTP_200_OK)
+    
+    
+
+class EmployeeSearch(APIView):
+    def get(self, request, format=None):
+        query = request.GET.get("search")
+        if not query:
+           return Response({"message": "query missing"}, status=status.HTTP_400_BAD_REQUEST)
+        employee = Employee.objects.filter(
+            Q(name__icontains=query)|
+            Q(role__icontains=query)
+        ).order_by("id")
+        serializer = EmployeeSerializers(employee, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
